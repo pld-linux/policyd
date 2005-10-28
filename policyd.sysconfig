@@ -1,0 +1,5 @@
+# Path to policyd.conf
+POLICYD_CONF="/etc/policyd/policyd.conf"
+
+# Nice level for at
+SERVICE_RUN_NICE_LEVEL="+0"
