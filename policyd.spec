@@ -1,4 +1,4 @@
-# $Id: policyd.spec,v 1.1 2005-10-28 08:29:43 eothane Exp $
+# $Id: policyd.spec,v 1.2 2005-10-28 09:56:22 eothane Exp $
 #
 # TODO: mysql info
 # mysql> GRANT ALL ON policyd.* TO policyd@localhost IDENTIFIED BY 'secret_password';
@@ -15,12 +15,12 @@
 #
 Summary:	Policyd is an anti-spam plugin for Postfix
 Name:		policyd
-Version:	1.67
+Version:	1.69
 Release:	0.1
 License:	GPL v2
 Group:		Networking
 Source0:	http://policyd.sourceforge.net/%{name}-v%{version}.tar.gz
-# Source0-md5:	77c59852a7316d48a5f84bb6841fc23c
+# Source0-md5:	720b88e1f36728c255cc55ebade37ac2
 Source1:	policyd.cron
 Source2:	policyd.sysconfig
 Source3:	policyd.conf
@@ -90,15 +90,18 @@ fi
 %dir %{_sysconfdir}/%{name}
 %config(noreplace) %verify(not size mtime md5) /etc/sysconfig/%{name}
 %config(noreplace) %verify(not size mtime md5) %attr(640,root,root) %{_sysconfdir}/%{name}/%{name}.conf
-%config %verify(not size mtime md5) %{_sysconfdir}/%{name}/%{name}.conf-dist
-%config %verify(not size mtime md5) %attr(755,root,root) /etc/cron.hourly/%{name}
-%config %verify(not size mtime md5) %attr(755,root,root) %{_sysconfdir}/rc.d/init.d/%{name}
+%verify(not size mtime md5) %{_sysconfdir}/%{name}/%{name}.conf-dist
+%verify(not size mtime md5) %attr(755,root,root) /etc/cron.hourly/%{name}
+%verify(not size mtime md5) %attr(755,root,root) %{_sysconfdir}/rc.d/init.d/%{name}
 
 %changelog
 * %{date} PLD Team <feedback@pld-linux.org>
 All persons listed below can be reached at <cvs_login>@pld-linux.org
 
 $Log: policyd.spec,v $
-Revision 1.1  2005-10-28 08:29:43  eothane
+Revision 1.2  2005-10-28 09:56:22  eothane
+- up to 1.69, cosmetics ...
+
+Revision 1.1  2005/10/28 08:29:43  eothane
 - made by Mikolaj Kucharski <build[at]kompuart[dot]pl>
 - NFY
