@@ -56,12 +56,7 @@ case "$1" in
 		msg_not_running PolicyD
 	fi
 	;;
-  restart)
-	$0 stop
-	$0 start
-	exit $?
-	;;
-  reload|force-reload)
+  restart|reload|force-reload)
 	$0 stop
 	$0 start
 	exit $?
@@ -70,7 +65,7 @@ case "$1" in
 	status policyd
 	exit $?
 	;;
-  cleanup)
+  cleanup|cron)
 	if [ -r /var/run/policyd.lck ]; then
 		echo "PolicyD cleanup process already running." 1>&2
 		RETVAL=1
@@ -84,8 +79,39 @@ case "$1" in
 		rm -f /var/run/policyd.lck
 	fi
 	;;
+  init)
+	echo ''
+	echo 'You must login as mysql administrator and setup policyd user as follows:'
+	echo ''
+	echo 'mysql> GRANT ALL ON policyd.* TO policyd@localhost IDENTIFIED BY '\''secret_password'\'';'
+	echo 'mysql> GRANT USAGE ON *.* TO policyd@localhost IDENTIFIED BY '\''secret_password'\'';'
+	echo ''
+	echo ''
+	echo 'Next create database structure:'
+	echo ''
+	echo '$ zcat /usr/share/doc/policyd-*/DATABASE.mysql.gz | mysql -p -u policyd'
+	echo ''
+	echo ''
+	echo 'After database is fully configured edit ``policyd.conf'\'\'' and set correct'
+	echo 'mysql username and password. Example configuration for postfix from'
+	echo '``main.cf'\'\'' file:'
+	echo ''
+	echo 'smtpd_recipient_restrictions ='
+	echo '	permit_mynetworks'
+	echo '	permit_sasl_authenticated'
+	echo '	reject_unauth_destination'
+	echo '	reject_unlisted_recipient'
+	echo '	check_policy_service inet:127.0.0.1:10031'
+	echo ''
+	echo ''
+	echo 'Start policyd daemon and then reload postfix configuration:'
+	echo ''
+	echo '# /etc/rc.d/init.d/policyd start'
+	echo '# postfix reload'
+	echo ''
+	;;
   *)
-	msg_usage "$0 {start|stop|restart|reload|force-reload|status}"
+	msg_usage "$0 {start|stop|restart|cron|init|status}"
 	exit 3
 esac
 

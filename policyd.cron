@@ -1,14 +1,3 @@
 #!/bin/sh
 
-if [ -r /etc/sysconfig/policyd ]; then
-	. /etc/sysconfig/policyd
-else
-	# set default file
-	POLICYD_CONF="/etc/policyd/policyd.conf"
-fi
-
-if [ ! -r /var/run/policyd.lck -a -r "${POLICYD_CONF}" ]; then
-	touch /var/run/policyd.lck
-	/usr/lib/policyd/cleanup -c "${POLICYD_CONF}"
-	rm -f /var/run/policyd.lck
-fi
+exec /etc/rc.d/init.d/policyd cron

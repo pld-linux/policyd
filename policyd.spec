@@ -1,18 +1,14 @@
-# $Id: policyd.spec,v 1.3 2005-10-28 17:53:35 qboosh Exp $
+# $Id: policyd.spec,v 1.4 2005-11-15 12:58:57 hns Exp $
 #
 # TODO: optflags
-# TODO: mysql info
-# mysql> GRANT ALL ON policyd.* TO policyd@localhost IDENTIFIED BY 'secret_password';
-# mysql> GRANT USAGE ON *.* TO policyd@localhost IDENTIFIED BY 'secret_password';
-# $ zcat /usr/share/doc/policyd-%{Version}/DATABASE.mysql.gz | mysql -p -u policyd
 #
-# TODO: postfix info
-#smtpd_recipient_restrictions =
-#	permit_mynetworks
-#	permit_sasl_authenticated
-#	reject_unauth_destination
-#	reject_unlisted_recipient
-#	check_policy_service inet:127.0.0.1:10031
+# TODO: upgrade database smooth
+# smart updates tables from older to newer version of policyd
+#
+# TODO: mysql and postfix info, see:
+# /etc/rc.d/init.d/policyd init
+#
+# Not Finished Yet, reject STBR.
 #
 Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl):	Policyd - wtyczka antyspamowa dla Postfiksa
@@ -29,6 +25,7 @@ Source3:	policyd.conf
 Source4:	policyd.init
 URL:		http://policyd.sourceforge.net/
 BuildRequires:	mysql-devel
+BuildRequires:	zlib-devel
 Requires:	mysql-libs
 Requires:	zlib
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -77,6 +74,7 @@ rm -rf $RPM_BUILD_ROOT
 if [ -f /var/lock/subsys/policyd ]; then
 	/etc/rc.d/init.d/policyd restart >&2 || :
 else
+	echo "Run \"/etc/rc.d/init.d/policyd init\" to read howto setup policy daemon." >&2
 	echo "Run \"/etc/rc.d/init.d/policyd start\" to start policy daemon." >&2
 fi
 
@@ -97,21 +95,25 @@ fi
 %files
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/%{name}/*
-%doc *.txt *.mysql doc/*.sql doc/*.txt
 %dir %{_sysconfdir}/%{name}
+%doc *.txt *.mysql doc/*.sql doc/*.txt
+%doc %{_sysconfdir}/%{name}/%{name}.conf-dist
 %config(noreplace) %verify(not md5 mtime size) %attr(640,root,root) %{_sysconfdir}/%{name}/%{name}.conf
-# shouldn't be in %doc instead here?
-%{_sysconfdir}/%{name}/%{name}.conf-dist
-%{_sysconfdir}/rc.d/init.d/%{name}
-%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
 %config(noreplace) %verify(not md5 mtime size) %attr(755,root,root) /etc/cron.hourly/%{name}
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
+%{_sysconfdir}/rc.d/init.d/%{name}
 
 %changelog
 * %{date} PLD Team <feedback@pld-linux.org>
 All persons listed below can be reached at <cvs_login>@pld-linux.org
 
 $Log: policyd.spec,v $
-Revision 1.3  2005-10-28 17:53:35  qboosh
+Revision 1.4  2005-11-15 12:58:57  hns
+- policyd.init: show howto setup new policyd install (``init'' param)
+- policyd.cron: move this to policyd.init (``cron'' param)
+- work in progress..
+
+Revision 1.3  2005/10/28 17:53:35  qboosh
 - pl, cleanups, config flags fixes
 
 Revision 1.2  2005/10/28 09:56:22  eothane
