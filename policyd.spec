@@ -1,4 +1,4 @@
-# $Id: policyd.spec,v 1.6 2005-11-16 10:10:00 qboosh Exp $
+# $Id: policyd.spec,v 1.7 2005-11-16 10:13:18 qboosh Exp $
 #
 # TODO: optflags
 #
@@ -33,9 +33,7 @@ Requires(pre):	/usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
-Requires:	mysql-libs
 Requires:	rc-scripts
-Requires:	zlib
 Provides:	group(policyd)
 Provides:	user(policyd)
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -118,7 +116,10 @@ fi
 All persons listed below can be reached at <cvs_login>@pld-linux.org
 
 $Log: policyd.spec,v $
-Revision 1.6  2005-11-16 10:10:00  qboosh
+Revision 1.7  2005-11-16 10:13:18  qboosh
+- removed autodetected Rs
+
+Revision 1.6  2005/11/16 10:10:00  qboosh
 - unified init.d perms
 - added Provides/Requires() for pre/post/preun/postun
 
