@@ -1,6 +1,4 @@
-# $Id: policyd.spec,v 1.7 2005-11-16 10:13:18 qboosh Exp $
-#
-# TODO: optflags
+# $Id: policyd.spec,v 1.8 2005-11-16 10:17:50 qboosh Exp $
 #
 # TODO: upgrade database smooth
 # smart updates tables from older to newer version of policyd
@@ -58,7 +56,11 @@ HELO.
 %setup -q -n %{name}-v%{version}
 
 %build
-%{__make} build
+%{__make} build \
+	CC="%{__cc}" \
+	CPPFLAGS="-I/usr/include/mysql" \
+	CFLAGS="%{rpmcflags} -W -Wall -DMAXFDS=1023" \
+	lib=
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -116,7 +118,10 @@ fi
 All persons listed below can be reached at <cvs_login>@pld-linux.org
 
 $Log: policyd.spec,v $
-Revision 1.7  2005-11-16 10:13:18  qboosh
+Revision 1.8  2005-11-16 10:17:50  qboosh
+- use optflags, avoid foreign -I/-L
+
+Revision 1.7  2005/11/16 10:13:18  qboosh
 - removed autodetected Rs
 
 Revision 1.6  2005/11/16 10:10:00  qboosh
