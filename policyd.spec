@@ -1,4 +1,4 @@
-# $Id: policyd.spec,v 1.5 2005-11-16 09:49:02 hns Exp $
+# $Id: policyd.spec,v 1.6 2005-11-16 10:10:00 qboosh Exp $
 #
 # TODO: optflags
 #
@@ -26,8 +26,18 @@ Source4:	policyd.init
 URL:		http://policyd.sourceforge.net/
 BuildRequires:	mysql-devel
 BuildRequires:	zlib-devel
+Requires(pre):	/bin/id
+Requires(pre):	/usr/bin/getgid
+Requires(pre):	/usr/sbin/groupadd
+Requires(pre):	/usr/sbin/useradd
+Requires(post,preun):	/sbin/chkconfig
+Requires(postun):	/usr/sbin/groupdel
+Requires(postun):	/usr/sbin/userdel
 Requires:	mysql-libs
+Requires:	rc-scripts
 Requires:	zlib
+Provides:	group(policyd)
+Provides:	user(policyd)
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -101,14 +111,18 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %attr(640,root,root) %{_sysconfdir}/%{name}/%{name}.conf
 %config(noreplace) %verify(not md5 mtime size) %attr(755,root,root) /etc/cron.hourly/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
-%attr(755,root,root) /etc/rc.d/init.d/%{name}
+%attr(754,root,root) /etc/rc.d/init.d/%{name}
 
 %changelog
 * %{date} PLD Team <feedback@pld-linux.org>
 All persons listed below can be reached at <cvs_login>@pld-linux.org
 
 $Log: policyd.spec,v $
-Revision 1.5  2005-11-16 09:49:02  hns
+Revision 1.6  2005-11-16 10:10:00  qboosh
+- unified init.d perms
+- added Provides/Requires() for pre/post/preun/postun
+
+Revision 1.5  2005/11/16 09:49:02  hns
 - up to 1.70, attr fix
 
 Revision 1.4  2005/11/15 12:58:57  hns
