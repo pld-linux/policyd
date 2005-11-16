@@ -1,4 +1,4 @@
-# $Id: policyd.spec,v 1.4 2005-11-15 12:58:57 hns Exp $
+# $Id: policyd.spec,v 1.5 2005-11-16 09:49:02 hns Exp $
 #
 # TODO: optflags
 #
@@ -13,12 +13,12 @@
 Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
-Version:	1.69
-Release:	0.1
+Version:	1.70
+Release:	0.2
 License:	GPL v2
 Group:		Networking
 Source0:	http://policyd.sourceforge.net/%{name}-v%{version}.tar.gz
-# Source0-md5:	720b88e1f36728c255cc55ebade37ac2
+# Source0-md5:	e10648392fe7f54456065e159eab8305
 Source1:	policyd.cron
 Source2:	policyd.sysconfig
 Source3:	policyd.conf
@@ -101,14 +101,17 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %attr(640,root,root) %{_sysconfdir}/%{name}/%{name}.conf
 %config(noreplace) %verify(not md5 mtime size) %attr(755,root,root) /etc/cron.hourly/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
-%{_sysconfdir}/rc.d/init.d/%{name}
+%attr(755,root,root) /etc/rc.d/init.d/%{name}
 
 %changelog
 * %{date} PLD Team <feedback@pld-linux.org>
 All persons listed below can be reached at <cvs_login>@pld-linux.org
 
 $Log: policyd.spec,v $
-Revision 1.4  2005-11-15 12:58:57  hns
+Revision 1.5  2005-11-16 09:49:02  hns
+- up to 1.70, attr fix
+
+Revision 1.4  2005/11/15 12:58:57  hns
 - policyd.init: show howto setup new policyd install (``init'' param)
 - policyd.cron: move this to policyd.init (``cron'' param)
 - work in progress..
