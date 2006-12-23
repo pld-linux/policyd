@@ -56,7 +56,7 @@ case "$1" in
 		msg_not_running PolicyD
 	fi
 	;;
-  restart|reload|force-reload)
+  restart|force-reload)
 	$0 stop
 	$0 start
 	exit $?
@@ -111,7 +111,7 @@ case "$1" in
 	echo ''
 	;;
   *)
-	msg_usage "$0 {start|stop|restart|cron|init|status}"
+	msg_usage "$0 {start|stop|restart|force-reload|cron|init|status}"
 	exit 3
 esac
 
