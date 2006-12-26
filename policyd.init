@@ -56,33 +56,34 @@ stop() {
 }
 
 init() {
-	cat <<-'EOF'
+	cat <<'EOF'
 
-	You must login as mysql administrator and setup policyd user as follows:
+You must login as mysql administrator and setup policyd user as follows:
 
-	mysql> GRANT ALL ON policyd.* TO policyd@localhost IDENTIFIED BY 'secret_password';
-	mysql> GRANT USAGE ON *.* TO policyd@localhost IDENTIFIED BY 'secret_password';
+mysql> GRANT ALL ON policyd.* TO policyd@localhost IDENTIFIED BY 'secret_password';
+mysql> GRANT USAGE ON *.* TO policyd@localhost IDENTIFIED BY 'secret_password';
 
-	Next create database structure:
+Next create database structure:
 
-	$ zcat /usr/share/doc/policyd-*/DATABASE.mysql.gz | mysql -p -u policyd
+$ zcat /usr/share/doc/policyd-*/DATABASE.mysql.gz | mysql -p -u policyd
 
-	After database is fully configured edit ``policyd.conf'' and set correct
-	mysql username and password. Example configuration for postfix from
-	``main.cf'' file:
+After database is fully configured edit ``policyd.conf'' and set correct
+mysql username and password. Example configuration for postfix from
+``main.cf'' file:
 
-	smtpd_recipient_restrictions =
-		permit_mynetworks
-		permit_sasl_authenticated
-		reject_unauth_destination
-		reject_unlisted_recipient
-		check_policy_service inet:127.0.0.1:10031
+smtpd_recipient_restrictions =
+	permit_mynetworks
+	permit_sasl_authenticated
+	reject_unauth_destination
+	reject_unlisted_recipient
+	check_policy_service inet:127.0.0.1:10031
 
 
-	Start policyd daemon and then reload postfix configuration:
+Start policyd daemon and then reload postfix configuration:
 
-	# service policyd start
-	# postfix reload
+# service policyd start
+# postfix reload
+
 EOF
 }
 
