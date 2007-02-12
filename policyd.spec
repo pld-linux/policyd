@@ -1,4 +1,4 @@
-# $Id: policyd.spec,v 1.8 2005-11-16 10:17:50 qboosh Exp $
+# $Id: policyd.spec,v 1.9 2007-02-12 01:06:26 baggins Exp $
 #
 # TODO: upgrade database smooth
 # smart updates tables from older to newer version of policyd
@@ -9,7 +9,7 @@
 # Not Finished Yet, reject STBR.
 #
 Summary:	Policyd - an anti-spam plugin for Postfix
-Summary(pl):	Policyd - wtyczka antyspamowa dla Postfiksa
+Summary(pl.UTF-8):   Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
 Version:	1.70
 Release:	0.2
@@ -43,12 +43,12 @@ and/or volume per defined time unit), recipient rate limiting,
 spamtrap monitoring/blacklisting, HELO auto blacklisting and HELO
 randomization preventation.
 
-%description -l pl
-Policyd to wtyczka antyspamowa dla Postfiksa obs≥uguj±ca szare listy,
-t≥umienie (liczby lub objÍto∂ci wiadomo∂ci w ci±gu jednostki czasu)
-oparte na nadawcy (wed≥ug koperty, uwierzytelnienia SASL albo
-hosta/IP), ograniczanie czÍstotliwo∂ci dostarczania do nadawcy,
-monitorowanie/dodawanie do czarnej listy pu≥apek spamowych,
+%description -l pl.UTF-8
+Policyd to wtyczka antyspamowa dla Postfiksa obs≈ÇugujƒÖca szare listy,
+t≈Çumienie (liczby lub objƒôto≈õci wiadomo≈õci w ciƒÖgu jednostki czasu)
+oparte na nadawcy (wed≈Çug koperty, uwierzytelnienia SASL albo
+hosta/IP), ograniczanie czƒôstotliwo≈õci dostarczania do nadawcy,
+monitorowanie/dodawanie do czarnej listy pu≈Çapek spamowych,
 automatyczne dodawanie do czarnej listy HELO i zapobieganie losowemu
 HELO.
 
@@ -118,7 +118,10 @@ fi
 All persons listed below can be reached at <cvs_login>@pld-linux.org
 
 $Log: policyd.spec,v $
-Revision 1.8  2005-11-16 10:17:50  qboosh
+Revision 1.9  2007-02-12 01:06:26  baggins
+- converted to UTF-8
+
+Revision 1.8  2005/11/16 10:17:50  qboosh
 - use optflags, avoid foreign -I/-L
 
 Revision 1.7  2005/11/16 10:13:18  qboosh
