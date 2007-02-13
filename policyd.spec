@@ -1,4 +1,4 @@
-# $Id: policyd.spec,v 1.9 2007-02-12 01:06:26 baggins Exp $
+# $Id: policyd.spec,v 1.10 2007-02-13 08:06:41 glen Exp $
 #
 # TODO: upgrade database smooth
 # smart updates tables from older to newer version of policyd
@@ -9,7 +9,7 @@
 # Not Finished Yet, reject STBR.
 #
 Summary:	Policyd - an anti-spam plugin for Postfix
-Summary(pl.UTF-8):   Policyd - wtyczka antyspamowa dla Postfiksa
+Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
 Version:	1.70
 Release:	0.2
@@ -118,7 +118,10 @@ fi
 All persons listed below can be reached at <cvs_login>@pld-linux.org
 
 $Log: policyd.spec,v $
-Revision 1.9  2007-02-12 01:06:26  baggins
+Revision 1.10  2007-02-13 08:06:41  glen
+- tabs in preamble
+
+Revision 1.9  2007/02/12 01:06:26  baggins
 - converted to UTF-8
 
 Revision 1.8  2005/11/16 10:17:50  qboosh
