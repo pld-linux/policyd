@@ -1,27 +1,26 @@
-# $Id: policyd.spec,v 1.10 2007-02-13 08:06:41 glen Exp $
+# $Id: policyd.spec,v 1.11 2010-12-20 15:08:25 glen Exp $
 #
-# TODO: upgrade database smooth
-# smart updates tables from older to newer version of policyd
-#
-# TODO: mysql and postfix info, see:
-# /etc/rc.d/init.d/policyd init
-#
-# Not Finished Yet, reject STBR.
+# TODO:
+# - upgrade database smooth
+#   smart updates tables from older to newer version of policyd
+# TODO
+# - mysql and postfix info, see:
+#   /etc/rc.d/init.d/policyd init
 #
 Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
-Version:	1.70
-Release:	0.2
+Version:	2.0.10
+Release:	0.1
 License:	GPL v2
 Group:		Networking
-Source0:	http://policyd.sourceforge.net/%{name}-v%{version}.tar.gz
-# Source0-md5:	e10648392fe7f54456065e159eab8305
-Source1:	policyd.cron
-Source2:	policyd.sysconfig
-Source3:	policyd.conf
-Source4:	policyd.init
-URL:		http://policyd.sourceforge.net/
+Source0:	http://downloads.sourceforge.net/policyd/cluebringer-%{version}.tar.bz2
+# Source0-md5:	cdff8f8e7c0e95143f7108159aed80c6
+Source1:	%{name}.cron
+Source2:	%{name}.sysconfig
+Source3:	%{name}.conf
+Source4:	%{name}.init
+URL:		http://www.policyd.org/
 BuildRequires:	mysql-devel
 BuildRequires:	zlib-devel
 Requires(pre):	/bin/id
@@ -37,11 +36,15 @@ Provides:	user(policyd)
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-Policyd is an anti-spam plugin for Postfix that does greylisting,
-sender-(envelope, SASL or host/IP)-based throttling (on messages
-and/or volume per defined time unit), recipient rate limiting,
-spamtrap monitoring/blacklisting, HELO auto blacklisting and HELO
-randomization preventation.
+Policyd v2 (codenamed "cluebringer") is a multi-platform policy server
+for popular MTAs. This policy daemon is designed mostly for large
+scale mail hosting environments. The main goal is to implement as many
+spam combating and email compliance features as possible while at the
+same time maintaining the portability, stability and performance
+required for mission critical email hosting of today. Most of the
+ideas and methods implemented in Policyd v2 stem from Policyd v1
+aswell as the authors' long time involvement in large scale mail
+hosting industry.
 
 %description -l pl.UTF-8
 Policyd to wtyczka antyspamowa dla Postfiksa obsługująca szare listy,
@@ -53,7 +56,7 @@ automatyczne dodawanie do czarnej listy HELO i zapobieganie losowemu
 HELO.
 
 %prep
-%setup -q -n %{name}-v%{version}
+%setup -q -n cluebringer-%{version}
 
 %build
 %{__make} build \
@@ -65,12 +68,12 @@ HELO.
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_libdir}/%{name},%{_sysconfdir}/%{name},/etc/rc.d/init.d,/etc/sysconfig,/etc/cron.hourly}
-install policyd cleanup $RPM_BUILD_ROOT%{_libdir}/%{name}
-install policyd.conf $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/%{name}.conf-dist
-install %{SOURCE1} $RPM_BUILD_ROOT/etc/cron.hourly/%{name}
-install %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
-install %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/%{name}.conf
-install %{SOURCE4} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+install -p policyd cleanup $RPM_BUILD_ROOT%{_libdir}/%{name}
+cp -a policyd.conf $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/%{name}.conf-dist
+cp -a %{SOURCE1} $RPM_BUILD_ROOT/etc/cron.hourly/%{name}
+cp -a %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+cp -a %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/%{name}.conf
+install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -112,42 +115,3 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %attr(755,root,root) /etc/cron.hourly/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
-
-%changelog
-* %{date} PLD Team <feedback@pld-linux.org>
-All persons listed below can be reached at <cvs_login>@pld-linux.org
-
-$Log: policyd.spec,v $
-Revision 1.10  2007-02-13 08:06:41  glen
-- tabs in preamble
-
-Revision 1.9  2007/02/12 01:06:26  baggins
-- converted to UTF-8
-
-Revision 1.8  2005/11/16 10:17:50  qboosh
-- use optflags, avoid foreign -I/-L
-
-Revision 1.7  2005/11/16 10:13:18  qboosh
-- removed autodetected Rs
-
-Revision 1.6  2005/11/16 10:10:00  qboosh
-- unified init.d perms
-- added Provides/Requires() for pre/post/preun/postun
-
-Revision 1.5  2005/11/16 09:49:02  hns
-- up to 1.70, attr fix
-
-Revision 1.4  2005/11/15 12:58:57  hns
-- policyd.init: show howto setup new policyd install (``init'' param)
-- policyd.cron: move this to policyd.init (``cron'' param)
-- work in progress..
-
-Revision 1.3  2005/10/28 17:53:35  qboosh
-- pl, cleanups, config flags fixes
-
-Revision 1.2  2005/10/28 09:56:22  eothane
-- up to 1.69, cosmetics ...
-
-Revision 1.1  2005/10/28 08:29:43  eothane
-- made by Mikolaj Kucharski <build[at]kompuart[dot]pl>
-- NFY
