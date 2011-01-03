@@ -1,12 +1,5 @@
-# $Id: policyd.spec,v 1.11 2010-12-20 15:08:25 glen Exp $
-#
-# TODO:
-# - upgrade database smooth
-#   smart updates tables from older to newer version of policyd
 # TODO
-# - mysql and postfix info, see:
-#   /etc/rc.d/init.d/policyd init
-#
+# - perl-cbp (for amavisd integration)
 Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
@@ -21,8 +14,7 @@ Source2:	%{name}.sysconfig
 Source3:	%{name}.conf
 Source4:	%{name}.init
 URL:		http://www.policyd.org/
-BuildRequires:	mysql-devel
-BuildRequires:	zlib-devel
+BuildRequires:	bash
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
@@ -33,7 +25,13 @@ Requires(postun):	/usr/sbin/userdel
 Requires:	rc-scripts
 Provides:	group(policyd)
 Provides:	user(policyd)
+BuildArch:	noarch
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		_webapps	/etc/webapps
+%define		_webapp		%{name}
+# this path is hardcoded
+%define		cblibdir	%{_prefix}/lib/policyd-2.0
 
 %description
 Policyd v2 (codenamed "cluebringer") is a multi-platform policy server
@@ -55,25 +53,47 @@ monitorowanie/dodawanie do czarnej listy pułapek spamowych,
 automatyczne dodawanie do czarnej listy HELO i zapobieganie losowemu
 HELO.
 
+%package webui
+Summary:	Webui
+Group:		Applications/WWW
+
+%description webui
+webui
+
 %prep
 %setup -q -n cluebringer-%{version}
 
 %build
-%{__make} build \
-	CC="%{__cc}" \
-	CPPFLAGS="-I/usr/include/mysql" \
-	CFLAGS="%{rpmcflags} -W -Wall -DMAXFDS=1023" \
-	lib=
+cd database
+for db_type in mysql4 mysql pgsql sqlite; do
+	./convert-tsql $db_type core.tsql > policyd.$db_type.sql
+	for file in $(find . -name '*.tsql' -and -not -name core.tsql); do
+		./convert-tsql $db_type $file
+	done >> policyd.$db_type.sql
+	cd whitelists
+		./parse-checkhelo-whitelist >> policyd.$db_type.sql
+		./parse-greylisting-whitelist >> policyd.$db_type.sql
+	cd ..
+done
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_libdir}/%{name},%{_sysconfdir}/%{name},/etc/rc.d/init.d,/etc/sysconfig,/etc/cron.hourly}
-install -p policyd cleanup $RPM_BUILD_ROOT%{_libdir}/%{name}
-cp -a policyd.conf $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/%{name}.conf-dist
-cp -a %{SOURCE1} $RPM_BUILD_ROOT/etc/cron.hourly/%{name}
-cp -a %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
-cp -a %{SOURCE3} $RPM_BUILD_ROOT%{_sysconfdir}/%{name}/%{name}.conf
+# cbpolicyd
+install -d $RPM_BUILD_ROOT{%{_sysconfdir}/policyd,%{_sbindir},%{cblibdir},/etc/{rc.d/init.d,sysconfig}}
+cp -R cbp $RPM_BUILD_ROOT%{cblibdir}
+install -p cbpolicyd cbpadmin database/convert-tsql $RPM_BUILD_ROOT%{_sbindir}
+cp -a cluebringer.conf $RPM_BUILD_ROOT%{_sysconfdir}/policyd/cluebringer.conf
 install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+cp -a %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
+
+# Webui
+install -d $RPM_BUILD_ROOT{%{_webapps}/%{_webapp},%{_datadir}/%{name}/webui}
+cp -R webui/* $RPM_BUILD_ROOT%{_datadir}/%{name}/webui
+install contrib/httpd/cluebringer-httpd.conf $RPM_BUILD_ROOT%{_webapps}/%{_webapp}/apache.conf
+cp -a $RPM_BUILD_ROOT%{_webapps}/%{_webapp}/{apache,httpd}.conf
+# Move config into %{_sysconfdir}
+mv $RPM_BUILD_ROOT%{_datadir}/%{name}/webui/includes/config.php $RPM_BUILD_ROOT%{_webapps}/%{_webapp}
+ln -s %{_webapps}/%{_webapp}/config.php $RPM_BUILD_ROOT%{_datadir}/%{name}/webui/includes
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -84,18 +104,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/chkconfig --add policyd
-if [ -f /var/lock/subsys/policyd ]; then
-	/etc/rc.d/init.d/policyd restart >&2 || :
-else
-	echo "Run \"/etc/rc.d/init.d/policyd init\" to read howto setup policy daemon." >&2
-	echo "Run \"/etc/rc.d/init.d/policyd start\" to start policy daemon." >&2
-fi
+%service policyd restart
 
 %preun
 if [ "$1" = "0" ]; then
-	if [ -f /var/lock/subsys/policyd ]; then
-		/etc/rc.d/init.d/policyd stop >&2
-	fi
+	%service policyd stop
 	/sbin/chkconfig --del policyd
 fi
 
@@ -105,13 +118,46 @@ if [ "$1" = "0" ]; then
 	%groupremove policyd
 fi
 
+%triggerin webui -- apache1 < 1.3.37-3, apache1-base
+%webapp_register apache %{_webapp}
+
+%triggerun webui -- apache1 < 1.3.37-3, apache1-base
+%webapp_unregister apache %{_webapp}
+
+%triggerin webui -- apache < 2.2.0, apache-base
+%webapp_register httpd %{_webapp}
+
+%triggerun webui -- apache < 2.2.0, apache-base
+%webapp_unregister httpd %{_webapp}
+
+%triggerin webui -- lighttpd
+%webapp_register lighttpd %{_webapp}
+
+%triggerun webui -- lighttpd
+%webapp_unregister lighttpd %{_webapp}
+
 %files
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/%{name}/*
+%doc AUTHORS CHANGELOG INSTALL TODO WISHLIST
+%doc database/*.sql
+%doc contrib/amavisd-new
+%attr(755,root,root) %{_sbindir}/cbpadmin
+%attr(755,root,root) %{_sbindir}/cbpolicyd
+%attr(755,root,root) %{_sbindir}/convert-tsql
 %dir %{_sysconfdir}/%{name}
-%doc *.txt *.mysql doc/*.sql doc/*.txt
-%doc %{_sysconfdir}/%{name}/%{name}.conf-dist
-%config(noreplace) %verify(not md5 mtime size) %attr(640,root,root) %{_sysconfdir}/%{name}/%{name}.conf
-%config(noreplace) %verify(not md5 mtime size) %attr(755,root,root) /etc/cron.hourly/%{name}
-%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
+%config(noreplace) %verify(not md5 mtime size) %attr(640,root,root) %{_sysconfdir}/%{name}/cluebringer.conf
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
+
+# TODO: use perl vendor dir?
+%dir %{cblibdir}
+%{cblibdir}/cbp
+
+%files webui
+%defattr(644,root,root,755)
+%dir %attr(750,root,http) %{_webapps}/%{_webapp}
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_webapps}/%{_webapp}/apache.conf
+%attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_webapps}/%{_webapp}/httpd.conf
+%attr(640,root,http) %config(noreplace) %verify(not md5 mtime size) %{_webapps}/%{_webapp}/config.php
+%dir %{_datadir}/%{name}
+%{_datadir}/%{name}/webui
