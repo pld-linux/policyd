@@ -1,0 +1,13 @@
+--- cluebringer-2.0.10/cluebringer.conf~	2009-11-24 12:59:24.000000000 +0200
++++ cluebringer-2.0.10/cluebringer.conf	2011-01-03 15:27:44.487256867 +0200
+@@ -20,8 +20,8 @@
+ EOT
+ 
+ # User to run this daemon as
+-#user=
+-#group=
++user=policyd
++group=policyd
+ 
+ # Filename to store pid of parent process
+ #pid_file=/var/run/cbpolicyd.pid

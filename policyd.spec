@@ -3,7 +3,7 @@ Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
 Version:	2.0.10
-Release:	0.3
+Release:	0.5
 License:	GPL v2
 Group:		Networking
 Source0:	http://downloads.sourceforge.net/policyd/cluebringer-%{version}.tar.bz2
@@ -12,6 +12,7 @@ Source1:	%{name}.cron
 Source2:	%{name}.sysconfig
 Source3:	%{name}.conf
 Source4:	%{name}.init
+Patch0:		config.patch
 URL:		http://www.policyd.org/
 BuildRequires:	bash
 BuildRequires:	rpm-perlprov >= 4.1-13
@@ -31,8 +32,6 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_webapps	/etc/webapps
 %define		_webapp		%{name}
-# this path is hardcoded
-%define		cblibdir	%{_prefix}/lib/policyd-2.0
 
 %description
 Policyd v2 (codenamed "cluebringer") is a multi-platform policy server
@@ -70,6 +69,7 @@ webui
 
 %prep
 %setup -q -n cluebringer-%{version}
+%patch0 -p1
 
 %build
 cd database
@@ -90,7 +90,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{perl_vendorlib}
 cp -a cbp $RPM_BUILD_ROOT%{perl_vendorlib}
 # cbpolicyd
-install -d $RPM_BUILD_ROOT{%{_sysconfdir}/policyd,%{_sbindir},%{cblibdir},/etc/{rc.d/init.d,sysconfig}}
+install -d $RPM_BUILD_ROOT{%{_sysconfdir}/policyd,%{_sbindir},/etc/{rc.d/init.d,sysconfig}}
 install -p cbpolicyd cbpadmin database/convert-tsql $RPM_BUILD_ROOT%{_sbindir}
 cp -a cluebringer.conf $RPM_BUILD_ROOT%{_sysconfdir}/policyd/cluebringer.conf
 install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
@@ -154,8 +154,8 @@ fi
 %attr(755,root,root) %{_sbindir}/cbpadmin
 %attr(755,root,root) %{_sbindir}/cbpolicyd
 %attr(755,root,root) %{_sbindir}/convert-tsql
-%dir %{_sysconfdir}/%{name}
-%config(noreplace) %verify(not md5 mtime size) %attr(640,root,root) %{_sysconfdir}/%{name}/cluebringer.conf
+%dir %attr(750,root,policyd) %{_sysconfdir}/%{name}
+%config(noreplace) %verify(not md5 mtime size) %attr(640,root,policyd) %{_sysconfdir}/%{name}/cluebringer.conf
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
 
