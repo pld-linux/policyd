@@ -25,7 +25,7 @@
 # Check that networking is up.
 if is_yes "${NETWORKING}"; then
 	if [ ! -f /var/lock/subsys/network -a "$1" != stop -a "$1" != status ]; then
-		msg_network_down PolicyD
+		msg_network_down "PolicyD"
 		exit 1
 	fi
 else
@@ -34,25 +34,27 @@ fi
 
 start() {
 	# Check if the service is already running?
-	if [ ! -f /var/lock/subsys/policyd ]; then
-		msg_starting PolicyD
-		daemon $SERVICE_RUN_NICE_LEVEL /usr/lib/policyd/policyd -c "${POLICYD_CONF}"
-		RETVAL=$?
-		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/policyd
-	else
-		msg_already_running PolicyD
+	if [ -f /var/lock/subsys/policyd ]; then
+		msg_already_running "PolicyD"
+		return
 	fi
+
+	msg_starting "PolicyD"
+	daemon $SERVICE_RUN_NICE_LEVEL /usr/lib/policyd/policyd -c "${POLICYD_CONF}"
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/policyd
 }
 
 stop() {
 	# Stop daemon.
-	if [ -f /var/lock/subsys/policyd ]; then
-		msg_stopping PolicyD
-		killproc policyd
-		rm -f /var/lock/subsys/policyd
-	else
-		msg_not_running PolicyD
+	if [ ! -f /var/lock/subsys/policyd ]; then
+		msg_not_running "PolicyD"
+		return
 	fi
+
+	msg_stopping "PolicyD"
+	killproc policyd
+	rm -f /var/lock/subsys/policyd
 }
 
 init() {
@@ -87,24 +89,7 @@ Start policyd daemon and then reload postfix configuration:
 EOF
 }
 
-RETVAL=0
-# See how we were called.
-case "$1" in
-  start)
-  	start
-	;;
-  stop)
-  	stop
-	;;
-  restart|force-reload)
-	stop
-	start
-	;;
-  status)
-	status policyd
-	exit $?
-	;;
-  cleanup|cron)
+cleanup() {
 	if [ -r /var/run/policyd.lck ]; then
 		echo "PolicyD cleanup process already running." 1>&2
 		RETVAL=1
@@ -117,9 +102,30 @@ case "$1" in
 		RETVAL=$?
 		rm -f /var/run/policyd.lck
 	fi
+}
+
+RETVAL=0
+# See how we were called.
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+  	stop
+	;;
+  restart|force-reload)
+	stop
+	start
+	;;
+  cleanup|cron)
+	cleanup
 	;;
   init)
   	init
+	;;
+  status)
+	status policyd
+	exit $?
 	;;
   *)
 	msg_usage "$0 {start|stop|restart|force-reload|cron|init|status}"
