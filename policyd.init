@@ -108,7 +108,7 @@ case "$1" in
 	cleanup
 	;;
   status)
-	status policyd
+	status policyd cbpolicyd
 	exit $?
 	;;
   *)
