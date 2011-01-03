@@ -3,12 +3,11 @@ Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
 Version:	2.0.10
-Release:	0.5
+Release:	0.6
 License:	GPL v2
 Group:		Networking
 Source0:	http://downloads.sourceforge.net/policyd/cluebringer-%{version}.tar.bz2
 # Source0-md5:	cdff8f8e7c0e95143f7108159aed80c6
-Source1:	%{name}.cron
 Source2:	%{name}.sysconfig
 Source3:	%{name}.conf
 Source4:	%{name}.init
@@ -61,11 +60,11 @@ Group:		Development/Languages/Perl
 Policyd "ClueBringer" Perl Libraries.
 
 %package webui
-Summary:	Webui
+Summary:	Policyd "ClueBringer" Web UI
 Group:		Applications/WWW
 
 %description webui
-webui
+Policyd "ClueBringer" Web UI.
 
 %prep
 %setup -q -n cluebringer-%{version}

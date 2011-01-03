@@ -70,21 +70,6 @@ condrestart() {
 	start
 }
 
-cleanup() {
-	if [ -r /var/run/policyd.lck ]; then
-		echo "PolicyD cleanup process already running." 1>&2
-		RETVAL=1
-	elif [ ! -r "${CLUEBRINGER_CONF}" ]; then
-		echo "PolicyD configuration file not found: ${CLUEBRINGER_CONF}" 1>&2
-		RETVAL=1
-	else
-		touch /var/run/policyd.lck
-		/usr/lib/policyd/cleanup -c "${CLUEBRINGER_CONF}"
-		RETVAL=$?
-		rm -f /var/run/policyd.lck
-	fi
-}
-
 RETVAL=0
 # See how we were called.
 case "$1" in
@@ -104,15 +89,12 @@ case "$1" in
   force-reload)
 	condrestart 7
 	;;
-  cleanup|cron)
-	cleanup
-	;;
   status)
 	status policyd cbpolicyd
 	exit $?
 	;;
   *)
-	msg_usage "$0 {start|stop|restart|try-restart|force-reload|cron|status}"
+	msg_usage "$0 {start|stop|restart|try-restart|force-reload|status}"
 	exit 3
 esac
 
