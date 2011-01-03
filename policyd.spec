@@ -1,10 +1,9 @@
-# TODO
-# - perl-cbp (for amavisd integration)
+%include	/usr/lib/rpm/macros.perl
 Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
 Version:	2.0.10
-Release:	0.1
+Release:	0.3
 License:	GPL v2
 Group:		Networking
 Source0:	http://downloads.sourceforge.net/policyd/cluebringer-%{version}.tar.bz2
@@ -15,6 +14,7 @@ Source3:	%{name}.conf
 Source4:	%{name}.init
 URL:		http://www.policyd.org/
 BuildRequires:	bash
+BuildRequires:	rpm-perlprov >= 4.1-13
 Requires(pre):	/bin/id
 Requires(pre):	/usr/bin/getgid
 Requires(pre):	/usr/sbin/groupadd
@@ -22,6 +22,7 @@ Requires(pre):	/usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
+Requires:	perl-cbp = %{version}-%{release}
 Requires:	rc-scripts
 Provides:	group(policyd)
 Provides:	user(policyd)
@@ -53,6 +54,13 @@ monitorowanie/dodawanie do czarnej listy pułapek spamowych,
 automatyczne dodawanie do czarnej listy HELO i zapobieganie losowemu
 HELO.
 
+%package -n perl-cbp
+Summary:	Policyd "ClueBringer" Perl Libraries
+Group:		Development/Languages/Perl
+
+%description -n perl-cbp
+Policyd "ClueBringer" Perl Libraries.
+
 %package webui
 Summary:	Webui
 Group:		Applications/WWW
@@ -78,9 +86,11 @@ done
 
 %install
 rm -rf $RPM_BUILD_ROOT
+# perl lib
+install -d $RPM_BUILD_ROOT%{perl_vendorlib}
+cp -a cbp $RPM_BUILD_ROOT%{perl_vendorlib}
 # cbpolicyd
 install -d $RPM_BUILD_ROOT{%{_sysconfdir}/policyd,%{_sbindir},%{cblibdir},/etc/{rc.d/init.d,sysconfig}}
-cp -R cbp $RPM_BUILD_ROOT%{cblibdir}
 install -p cbpolicyd cbpadmin database/convert-tsql $RPM_BUILD_ROOT%{_sbindir}
 cp -a cluebringer.conf $RPM_BUILD_ROOT%{_sysconfdir}/policyd/cluebringer.conf
 install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
@@ -149,9 +159,9 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
 
-# TODO: use perl vendor dir?
-%dir %{cblibdir}
-%{cblibdir}/cbp
+%files -n perl-cbp
+%defattr(644,root,root,755)
+%{perl_vendorlib}/cbp
 
 %files webui
 %defattr(644,root,root,755)
