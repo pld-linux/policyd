@@ -1,5 +1,5 @@
-# Path to policyd.conf
-POLICYD_CONF="/etc/policyd/policyd.conf"
-
 # Nice level for policyd
 SERVICE_RUN_NICE_LEVEL="+0"
+
+# config cbpolicyd is started
+#CLUEBRINGER_CONF="/etc/policyd/cluebringer.conf"

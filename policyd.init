@@ -19,8 +19,10 @@
 . /etc/sysconfig/network
 
 # Get service config
-[ -r /etc/sysconfig/policyd ] && . /etc/sysconfig/policyd || \
-	POLICYD_CONF="/etc/policyd/policyd.conf"
+CLUEBRINGER_CONF="/etc/policyd/cluebringer.conf"
+if [ -r /etc/sysconfig/policyd ]; then
+	. /etc/sysconfig/policyd
+fi
 
 # Check that networking is up.
 if is_yes "${NETWORKING}"; then
@@ -40,7 +42,7 @@ start() {
 	fi
 
 	msg_starting "PolicyD"
-	daemon $SERVICE_RUN_NICE_LEVEL /usr/lib/policyd/policyd -c "${POLICYD_CONF}"
+	daemon $SERVICE_RUN_NICE_LEVEL /usr/sbin/cbpolicyd --config "$CLUEBRINGER_CONF"
 	RETVAL=$?
 	[ $RETVAL -eq 0 ] && touch /var/lock/subsys/policyd
 }
@@ -53,12 +55,12 @@ stop() {
 	fi
 
 	msg_stopping "PolicyD"
-	killproc policyd
+	killproc cbpolicyd
 	rm -f /var/lock/subsys/policyd
 }
 
 condrestart() {
-	if [ ! -f /var/lock/subsys/<service> ]; then
+	if [ ! -f /var/lock/subsys/policyd ]; then
 		msg_not_running "PolicyD"
 		RETVAL=$1
 		return
@@ -72,12 +74,12 @@ cleanup() {
 	if [ -r /var/run/policyd.lck ]; then
 		echo "PolicyD cleanup process already running." 1>&2
 		RETVAL=1
-	elif [ ! -r "${POLICYD_CONF}" ]; then
-		echo "PolicyD configuration file not found: ${POLICYD_CONF}" 1>&2
+	elif [ ! -r "${CLUEBRINGER_CONF}" ]; then
+		echo "PolicyD configuration file not found: ${CLUEBRINGER_CONF}" 1>&2
 		RETVAL=1
 	else
 		touch /var/run/policyd.lck
-		/usr/lib/policyd/cleanup -c "${POLICYD_CONF}"
+		/usr/lib/policyd/cleanup -c "${CLUEBRINGER_CONF}"
 		RETVAL=$?
 		rm -f /var/run/policyd.lck
 	fi
