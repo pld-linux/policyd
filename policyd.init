@@ -57,6 +57,17 @@ stop() {
 	rm -f /var/lock/subsys/policyd
 }
 
+condrestart() {
+	if [ ! -f /var/lock/subsys/<service> ]; then
+		msg_not_running "PolicyD"
+		RETVAL=$1
+		return
+	fi
+
+	stop
+	start
+}
+
 init() {
 	cat <<'EOF'
 
@@ -113,9 +124,15 @@ case "$1" in
   stop)
   	stop
 	;;
-  restart|force-reload)
+  restart)
 	stop
 	start
+	;;
+  try-restart)
+	condrestart 0
+	;;
+  force-reload)
+	condrestart 7
 	;;
   cleanup|cron)
 	cleanup
@@ -128,7 +145,7 @@ case "$1" in
 	exit $?
 	;;
   *)
-	msg_usage "$0 {start|stop|restart|force-reload|cron|init|status}"
+	msg_usage "$0 {start|stop|restart|try-restart|force-reload|cron|init|status}"
 	exit 3
 esac
 
