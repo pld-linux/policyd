@@ -3,11 +3,12 @@ Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
 Version:	2.0.10
-Release:	0.6
+Release:	0.7
 License:	GPL v2
 Group:		Networking
 Source0:	http://downloads.sourceforge.net/policyd/cluebringer-%{version}.tar.bz2
 # Source0-md5:	cdff8f8e7c0e95143f7108159aed80c6
+Source1:	apache.conf
 Source2:	%{name}.sysconfig
 Source3:	%{name}.conf
 Source4:	%{name}.init
@@ -31,6 +32,7 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_webapps	/etc/webapps
 %define		_webapp		%{name}
+%define		_webappdir	%{_datadir}/%{name}-webui
 
 %description
 Policyd v2 (codenamed "cluebringer") is a multi-platform policy server
@@ -60,11 +62,15 @@ Group:		Development/Languages/Perl
 Policyd "ClueBringer" Perl Libraries.
 
 %package webui
-Summary:	Policyd "ClueBringer" Web UI
+Summary:	Policyd Web Administration
 Group:		Applications/WWW
+Requires:	webapps
+Requires:	webserver(access)
+Requires:	webserver(alias)
+Requires:	webserver(php)
 
 %description webui
-Policyd "ClueBringer" Web UI.
+Policyd Web Administration.
 
 %prep
 %setup -q -n cluebringer-%{version}
@@ -96,13 +102,13 @@ install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 cp -a %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 
 # Webui
-install -d $RPM_BUILD_ROOT{%{_webapps}/%{_webapp},%{_datadir}/%{name}/webui}
-cp -R webui/* $RPM_BUILD_ROOT%{_datadir}/%{name}/webui
-install contrib/httpd/cluebringer-httpd.conf $RPM_BUILD_ROOT%{_webapps}/%{_webapp}/apache.conf
+install -d $RPM_BUILD_ROOT{%{_webapps}/%{_webapp},%{_webappdir}}
+cp -R webui/* $RPM_BUILD_ROOT%{_webappdir}
+cp -a %{SOURCE1} $RPM_BUILD_ROOT%{_webapps}/%{_webapp}/apache.conf
 cp -a $RPM_BUILD_ROOT%{_webapps}/%{_webapp}/{apache,httpd}.conf
 # Move config into %{_sysconfdir}
-mv $RPM_BUILD_ROOT%{_datadir}/%{name}/webui/includes/config.php $RPM_BUILD_ROOT%{_webapps}/%{_webapp}
-ln -s %{_webapps}/%{_webapp}/config.php $RPM_BUILD_ROOT%{_datadir}/%{name}/webui/includes
+mv $RPM_BUILD_ROOT%{_webappdir}/includes/config.php $RPM_BUILD_ROOT%{_webapps}/%{_webapp}
+ln -s %{_webapps}/%{_webapp}/config.php $RPM_BUILD_ROOT%{_webappdir}/includes
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -168,5 +174,4 @@ fi
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_webapps}/%{_webapp}/apache.conf
 %attr(640,root,root) %config(noreplace) %verify(not md5 mtime size) %{_webapps}/%{_webapp}/httpd.conf
 %attr(640,root,http) %config(noreplace) %verify(not md5 mtime size) %{_webapps}/%{_webapp}/config.php
-%dir %{_datadir}/%{name}
-%{_datadir}/%{name}/webui
+%{_webappdir}
