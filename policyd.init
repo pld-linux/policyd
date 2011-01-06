@@ -7,10 +7,8 @@
 #
 # description:	Policyd is an anti-spam plugin for Postfix.
 #
-
-# pidfile:      /var/run/policyd.pid
-# config:       /etc/policyd/policyd.conf
-
+# pidfile:      /var/run/policyd/policyd.pid
+# config:       /etc/policyd/cluebringer.conf
 
 # Source function library
 . /etc/rc.d/init.d/functions
@@ -23,6 +21,8 @@ CLUEBRINGER_CONF="/etc/policyd/cluebringer.conf"
 if [ -r /etc/sysconfig/policyd ]; then
 	. /etc/sysconfig/policyd
 fi
+
+pidfile="/var/run/policyd/policyd.pid"
 
 # Check that networking is up.
 if is_yes "${NETWORKING}"; then
@@ -55,7 +55,7 @@ stop() {
 	fi
 
 	msg_stopping "PolicyD"
-	killproc cbpolicyd
+	killproc --pidfile $pidfile cbpolicyd
 	rm -f /var/lock/subsys/policyd
 }
 
@@ -90,7 +90,7 @@ case "$1" in
 	condrestart 7
 	;;
   status)
-	status policyd cbpolicyd
+	status --pidfile $pidfile policyd cbpolicyd
 	exit $?
 	;;
   *)

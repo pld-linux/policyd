@@ -3,7 +3,7 @@ Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
 Version:	2.0.10
-Release:	0.8
+Release:	0.10
 License:	GPL v2
 Group:		Networking
 Source0:	http://downloads.sourceforge.net/policyd/cluebringer-%{version}.tar.bz2
@@ -96,7 +96,7 @@ rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{perl_vendorlib}
 cp -a cbp $RPM_BUILD_ROOT%{perl_vendorlib}
 # cbpolicyd
-install -d $RPM_BUILD_ROOT{%{_sysconfdir}/policyd,%{_sbindir},/etc/{rc.d/init.d,sysconfig}}
+install -d $RPM_BUILD_ROOT{%{_sysconfdir}/policyd,%{_sbindir},/etc/{rc.d/init.d,sysconfig},/var/run/%{name}}
 install -p cbpolicyd cbpadmin database/convert-tsql $RPM_BUILD_ROOT%{_sbindir}
 cp -a cluebringer.conf $RPM_BUILD_ROOT%{_sysconfdir}/policyd/cluebringer.conf
 install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
@@ -164,6 +164,7 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %attr(640,root,policyd) %{_sysconfdir}/%{name}/cluebringer.conf
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
+%dir %attr(775,root,policyd) /var/run/%{name}
 
 %files -n perl-cbp
 %defattr(644,root,root,755)
