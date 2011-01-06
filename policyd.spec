@@ -23,6 +23,7 @@ Requires(pre):	/usr/sbin/useradd
 Requires(post,preun):	/sbin/chkconfig
 Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
+Requires:	perl-Net-CIDR
 Requires:	perl-cbp = %{version}-%{release}
 Requires:	rc-scripts
 Provides:	group(policyd)
