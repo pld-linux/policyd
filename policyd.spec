@@ -12,6 +12,7 @@ Source1:	apache.conf
 Source2:	%{name}.sysconfig
 Source3:	%{name}.conf
 Source4:	%{name}.init
+Source5:	%{name}.tmpfiles
 Patch0:		config.patch
 URL:		http://www.policyd.org/
 BuildRequires:	bash
@@ -93,24 +94,28 @@ done
 
 %install
 rm -rf $RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT{%{perl_vendorlib},%{_webapps}/%{_webapp},%{_webappdir}} \
+	$RPM_BUILD_ROOT{%{_sysconfdir}/policyd,%{_sbindir},/etc/{rc.d/init.d,sysconfig},/var/run/%{name}} \
+	$RPM_BUILD_ROOT/usr/lib/tmpfiles.d
+
 # perl lib
-install -d $RPM_BUILD_ROOT%{perl_vendorlib}
 cp -a cbp $RPM_BUILD_ROOT%{perl_vendorlib}
+
 # cbpolicyd
-install -d $RPM_BUILD_ROOT{%{_sysconfdir}/policyd,%{_sbindir},/etc/{rc.d/init.d,sysconfig},/var/run/%{name}}
 install -p cbpolicyd cbpadmin database/convert-tsql $RPM_BUILD_ROOT%{_sbindir}
 cp -a cluebringer.conf $RPM_BUILD_ROOT%{_sysconfdir}/policyd/cluebringer.conf
 install -p %{SOURCE4} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 cp -a %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 
 # Webui
-install -d $RPM_BUILD_ROOT{%{_webapps}/%{_webapp},%{_webappdir}}
 cp -R webui/* $RPM_BUILD_ROOT%{_webappdir}
 cp -a %{SOURCE1} $RPM_BUILD_ROOT%{_webapps}/%{_webapp}/apache.conf
 cp -a $RPM_BUILD_ROOT%{_webapps}/%{_webapp}/{apache,httpd}.conf
 # Move config into %{_sysconfdir}
 mv $RPM_BUILD_ROOT%{_webappdir}/includes/config.php $RPM_BUILD_ROOT%{_webapps}/%{_webapp}
 ln -s %{_webapps}/%{_webapp}/config.php $RPM_BUILD_ROOT%{_webappdir}/includes
+
+install %{SOURCE5} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/%{name}.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -166,6 +171,7 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
 %dir %attr(775,root,policyd) /var/run/%{name}
+/usr/lib/tmpfiles.d/%{name}.conf
 
 %files -n perl-cbp
 %defattr(644,root,root,755)
