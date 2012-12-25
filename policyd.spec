@@ -2,12 +2,13 @@
 Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
-Version:	2.0.10
-Release:	3
+Version:	2.1.x
+%define 	rel 201211111115
+Release:	5
 License:	GPL v2
 Group:		Networking
-Source0:	http://downloads.sourceforge.net/policyd/cluebringer-%{version}.tar.bz2
-# Source0-md5:	cdff8f8e7c0e95143f7108159aed80c6
+Source0: 	http://devlabs.linuxassist.net/attachments/download/255/cluebringer-v%{version}-%{rel}.tar.bz2
+# Source0-md5:	72c02a80e8ce60c72410ae41bb22265d
 Source1:	apache.conf
 Source2:	%{name}.sysconfig
 Source3:	%{name}.conf
@@ -26,6 +27,7 @@ Requires(postun):	/usr/sbin/groupdel
 Requires(postun):	/usr/sbin/userdel
 Requires:	perl-Net-CIDR
 Requires:	perl-cbp = %{version}-%{release}
+Requires:	perl-awitpt = %{version}-%{release}
 Requires:	rc-scripts
 Provides:	group(policyd)
 Provides:	user(policyd)
@@ -63,6 +65,14 @@ Group:		Development/Languages/Perl
 %description -n perl-cbp
 Policyd "ClueBringer" Perl Libraries.
 
+%package -n perl-awitpt
+Summary:	Another Policyd "ClueBringer" Perl Libraries
+Group:		Development/Languages/Perl
+
+%description -n perl-awitpt
+Another Policyd "ClueBringer" Perl Libraries.
+
+
 %package webui
 Summary:	Policyd Web Administration
 Group:		Applications/WWW
@@ -76,7 +86,7 @@ Requires:	webserver(php)
 Policyd Web Administration.
 
 %prep
-%setup -q -n cluebringer-%{version}
+%setup -q -n cluebringer-v%{version}-%{rel}
 %patch0 -p1
 
 %build
@@ -95,11 +105,12 @@ done
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{perl_vendorlib},%{_webapps}/%{_webapp},%{_webappdir}} \
-	$RPM_BUILD_ROOT{%{_sysconfdir}/policyd,%{_sbindir},/etc/{rc.d/init.d,sysconfig},/var/run/%{name}} \
+	$RPM_BUILD_ROOT{%{_sysconfdir}/policyd,%{_sbindir},/etc/{rc.d/init.d,sysconfig},/var/run/%{name},/var/log/%{name}} \
 	$RPM_BUILD_ROOT/usr/lib/tmpfiles.d
 
-# perl lib
+# perl libs
 cp -a cbp $RPM_BUILD_ROOT%{perl_vendorlib}
+cp -a awitpt/awitpt $RPM_BUILD_ROOT%{perl_vendorlib}
 
 # cbpolicyd
 install -p cbpolicyd cbpadmin database/convert-tsql $RPM_BUILD_ROOT%{_sbindir}
@@ -140,27 +151,27 @@ if [ "$1" = "0" ]; then
 	%groupremove policyd
 fi
 
-%triggerin webui -- apache1 < 1.3.37-3, apache1-base
+%triggerin -- apache1 < 1.3.37-3, apache1-base
 %webapp_register apache %{_webapp}
 
-%triggerun webui -- apache1 < 1.3.37-3, apache1-base
+%triggerun -- apache1 < 1.3.37-3, apache1-base
 %webapp_unregister apache %{_webapp}
 
-%triggerin webui -- apache < 2.2.0, apache-base
+%triggerin -- apache < 2.2.0, apache-base
 %webapp_register httpd %{_webapp}
 
-%triggerun webui -- apache < 2.2.0, apache-base
+%triggerun -- apache < 2.2.0, apache-base
 %webapp_unregister httpd %{_webapp}
 
-%triggerin webui -- lighttpd
+%triggerin -- lighttpd
 %webapp_register lighttpd %{_webapp}
 
-%triggerun webui -- lighttpd
+%triggerun -- lighttpd
 %webapp_unregister lighttpd %{_webapp}
 
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS CHANGELOG INSTALL TODO WISHLIST
+%doc AUTHORS INSTALL TODO WISHLIST
 %doc database/*.sql
 %doc contrib/amavisd-new
 %attr(755,root,root) %{_sbindir}/cbpadmin
@@ -171,11 +182,17 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/%{name}
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}
 %dir %attr(775,root,policyd) /var/run/%{name}
+%dir %attr(775,root,policyd) /var/log/%{name}
 /usr/lib/tmpfiles.d/%{name}.conf
 
 %files -n perl-cbp
 %defattr(644,root,root,755)
 %{perl_vendorlib}/cbp
+
+%files -n perl-awitpt
+%defattr(644,root,root,755)
+%{perl_vendorlib}/awitpt
+
 
 %files webui
 %defattr(644,root,root,755)

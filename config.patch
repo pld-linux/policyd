@@ -1,17 +1,31 @@
---- cluebringer-2.0.10/cluebringer.conf	2011-01-03 15:27:44.487256867 +0200
-+++ cluebringer-2.0.10/cluebringer.conf	2011-01-06 16:28:24.957854449 +0200
-@@ -20,11 +20,11 @@
+diff -ru cluebringer-v2.1.x-201211111115.orig/cluebringer.conf cluebringer-v2.1.x-201211111115/cluebringer.conf
+--- cluebringer-v2.1.x-201211111115.orig/cluebringer.conf	2012-11-11 12:36:25.000000000 +0100
++++ cluebringer-v2.1.x-201211111115/cluebringer.conf	2012-12-25 01:28:36.806077230 +0100
+@@ -22,14 +22,14 @@
  EOT
  
  # User to run this daemon as
--#user=
--#group=
+-user=cbpolicyd
+-group=cbpolicyd
 +user=policyd
 +group=policyd
  
  # Filename to store pid of parent process
--#pid_file=/var/run/cbpolicyd.pid
+-#pid_file=/var/run/cbpolicyd/cbpolicyd.pid
 +pid_file=/var/run/policyd/cbpolicyd.pid
+ 
+ # Cache file
+-#cache_file=/var/run/cbpolicyd/cache
++cache_file=/var/run/policyd/cache
  
  # Uncommenting the below option will prevent cbpolicyd going into the background
  #background=no
+@@ -65,7 +65,7 @@
+ #log_level=2
+ 
+ # File to log to instead of stdout
+-#log_file=/var/log/cbpolicyd/cbpolicyd.log
++log_file=/var/log/policyd/cbpolicyd.log
+ 
+ # Log destination for mail logs...
+ # main		- Default. Log to policyd's main log mechanism, accepts NO args
