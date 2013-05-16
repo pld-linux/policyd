@@ -3,7 +3,7 @@ Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
 Version:	2.0.10
-Release:	3
+Release:	4
 License:	GPL v2
 Group:		Networking
 Source0:	http://downloads.sourceforge.net/policyd/cluebringer-%{version}.tar.bz2
@@ -13,6 +13,7 @@ Source2:	%{name}.sysconfig
 Source3:	%{name}.conf
 Source4:	%{name}.init
 Source5:	%{name}.tmpfiles
+Source6:	httpd.conf
 Patch0:		config.patch
 URL:		http://www.policyd.org/
 BuildRequires:	bash
@@ -71,6 +72,7 @@ Requires:	webapps
 Requires:	webserver(access)
 Requires:	webserver(alias)
 Requires:	webserver(php)
+Conflicts:	apache-base < 2.4.0-1
 
 %description webui
 Policyd Web Administration.
@@ -110,7 +112,8 @@ cp -a %{SOURCE2} $RPM_BUILD_ROOT/etc/sysconfig/%{name}
 # Webui
 cp -R webui/* $RPM_BUILD_ROOT%{_webappdir}
 cp -a %{SOURCE1} $RPM_BUILD_ROOT%{_webapps}/%{_webapp}/apache.conf
-cp -a $RPM_BUILD_ROOT%{_webapps}/%{_webapp}/{apache,httpd}.conf
+cp -a %{SOURCE6} $RPM_BUILD_ROOT%{_webapps}/%{_webapp}/httpd.conf
+
 # Move config into %{_sysconfdir}
 mv $RPM_BUILD_ROOT%{_webappdir}/includes/config.php $RPM_BUILD_ROOT%{_webapps}/%{_webapp}
 ln -s %{_webapps}/%{_webapp}/config.php $RPM_BUILD_ROOT%{_webappdir}/includes
@@ -146,10 +149,10 @@ fi
 %triggerun webui -- apache1 < 1.3.37-3, apache1-base
 %webapp_unregister apache %{_webapp}
 
-%triggerin webui -- apache < 2.2.0, apache-base
+%triggerin webui -- apache-base
 %webapp_register httpd %{_webapp}
 
-%triggerun webui -- apache < 2.2.0, apache-base
+%triggerun webui -- apache-base
 %webapp_unregister httpd %{_webapp}
 
 %triggerin webui -- lighttpd
