@@ -1,4 +1,3 @@
-%include	/usr/lib/rpm/macros.perl
 Summary:	Policyd - an anti-spam plugin for Postfix
 Summary(pl.UTF-8):	Policyd - wtyczka antyspamowa dla Postfiksa
 Name:		policyd
