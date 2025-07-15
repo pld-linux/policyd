@@ -78,7 +78,7 @@ Policyd Web Administration.
 
 %prep
 %setup -q -n cluebringer-%{version}
-%patch0 -p1
+%patch -P0 -p1
 
 %build
 cd database
